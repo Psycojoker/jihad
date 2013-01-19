@@ -15,8 +15,6 @@ def modernize():
     module_settings = eval(open(os.path.join(module_directory, "__openerp__.py")).read())
     xml_files = list(set(filter(lambda x: x.strip().endswith(".xml"), module_settings.get("init_xml", []) + module_settings.get("data", []) + module_settings.get("update_xml", []))))
 
-    print xml_files
-
     for xml_file in xml_files:
         haml_file = xml_file[:-3] + "haml"
         haml_file_path = os.path.join(module_directory, xml_file[:-3] + "haml")
