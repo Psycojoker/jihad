@@ -3,7 +3,7 @@ import sys
 from jinja2 import Environment, FileSystemLoader
 from hamlish_jinja import HamlishExtension
 
-def modernize():
+def modernize(indent=False):
     called_from = sys._getframe(1).f_globals["__file__"]
     module_directory = os.path.split(called_from)[0]
 
@@ -11,6 +11,8 @@ def modernize():
         return
 
     env = Environment(extensions=[HamlishExtension], loader=FileSystemLoader(module_directory))
+    if indent:
+        env.hamlish_mode = 'indented'
 
     module_settings = eval(open(os.path.join(module_directory, "__openerp__.py")).read())
     xml_files = list(set(filter(lambda x: x.strip().endswith(".xml"), module_settings.get("init_xml", []) + module_settings.get("data", []) + module_settings.get("update_xml", []))))
