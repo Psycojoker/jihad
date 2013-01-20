@@ -16,7 +16,12 @@
 import os
 import sys
 from jinja2 import Environment, FileSystemLoader
-from hamlish_jinja import HamlishExtension
+from hamlish_jinja import HamlishExtension, Hamlish
+
+# monkey patching because hamlish doesn't provide a clean way to do that :(
+Hamlish._self_closing_html_tags.add("newline")
+Hamlish._self_closing_html_tags.add("menuitem")
+
 
 def modernize(indent=False):
     called_from = sys._getframe(1).f_globals["__file__"]
