@@ -15,12 +15,50 @@
 
 import os
 import sys
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, nodes
+from jinja2.ext import Extension
 from hamlish_jinja import HamlishExtension, Hamlish
 
 # monkey patching because hamlish doesn't provide a clean way to do that :(
 Hamlish._self_closing_html_tags.add("newline")
 Hamlish._self_closing_html_tags.add("menuitem")
+
+#Hamlish._self_closing_jinja_tags.add("with_tree")
+
+tree_template = """\
+%record#view_some_module_some_oerp_object model="ir.ui.view"
+  %field name="name" << {{ model_name }}.tree
+  %field name="model" << {{ model_name }}
+  %field name="type" << tree
+  %field name="arch" type="xml"
+    %tree{% if description %} string="{{ description }}"{% endif %}
+      =body
+"""
+
+
+class WithTree(Extension):
+    tags = set(['with_tree'])
+
+    def parse(self, parser):
+        # skip tag name
+        lineno = parser.stream.next().lineno
+        model_name = parser.parse_expression().value
+        #from ipdb import set_trace; set_trace()
+        options = {"model_name": model_name}
+        while parser.stream.current.type != 'block_end':
+            key = parser.parse_assign_target().name
+            parser.stream.expect('assign')
+            value = parser.parse_tuple().value
+            options[key] = value
+        self.tag_options = options
+        body = parser.parse_statements(['name:endwith_tree'], drop_needle=True)
+        return nodes.CallBlock(self.call_method('_generate_view', []), [], [], body).set_lineno(lineno)
+
+    def _generate_view(self, caller):
+        return env.hamlish_from_string(tree_template).render(body=caller().strip() + "\n", **self.tag_options)
+
+
+env = Environment(extensions=[WithTree, HamlishExtension])
 
 
 def modernize(indent=False):
@@ -30,7 +68,7 @@ def modernize(indent=False):
     if not os.path.exists(os.path.join(module_directory, "__openerp__.py")):
         return
 
-    env = Environment(extensions=[HamlishExtension], loader=FileSystemLoader(module_directory))
+    env.loader = FileSystemLoader(module_directory)
     if indent:
         env.hamlish_mode = 'indented'
 
