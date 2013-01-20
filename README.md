@@ -128,7 +128,7 @@ To activate indent mode, simply do this:
 
 ```python
 from oerpjh import import modernize
-modernize()
+modernize(indent=True)
 ```
 
 The problem is that, in indented mode, this *.haml*:
