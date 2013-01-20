@@ -64,9 +64,9 @@ from oerpjh import import modernize
 modernize()
 
 # your usual imports
-import openerp_objects_file1.py
-import openerp_objects_file2.py
-import openerp_objects_file3.py
+import openerp_objects_file1
+import openerp_objects_file2
+import openerp_objects_file3
 ...
 ```
 
