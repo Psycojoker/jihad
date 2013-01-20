@@ -63,7 +63,7 @@ In an OpenERP module, edit the *__init__.py* file and add this:
 from oerpjh import import modernize
 modernize()
 
-# your usal imports
+# your usual imports
 import openerp_objects_file1.py
 import openerp_objects_file2.py
 import openerp_objects_file3.py
