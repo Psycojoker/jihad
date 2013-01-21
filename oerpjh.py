@@ -55,7 +55,7 @@ class WithGenericView(Extension):
         while parser.stream.current.type != 'block_end':
             key = parser.parse_assign_target().name
             if key not in options.keys():
-                parser.fail("unexcepted assignement: '%s' is not a valid option, valid options are: %s" % (key, ", ".join(options.keys())))
+                parser.fail("unexcepted assignement: '%s' is not a valid option, valid options are: %s" % (key, ", ".join(filter(lambda x: x != "model_name", options.keys()))))
             parser.stream.expect('assign')
             value = parser.parse_tuple().value
             options[key] = value
