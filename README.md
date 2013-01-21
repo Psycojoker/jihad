@@ -33,6 +33,14 @@ Which you could also write:
       %field name='type'.
 ```
 
+Or even (because writting <openerp><data> all the time is useless and boring):
+```haml
+-with_tree "some_module.some_oerp_object" string="Some title"
+  %field name='name'.
+  %field name='description'.
+  %field name='type'.
+```
+
 Become:
 ```xml
 <openerp>
