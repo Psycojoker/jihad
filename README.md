@@ -67,10 +67,10 @@ Haven't pushed on pypi yet.
 Usage
 =====
 
-In an OpenERP module, edit the *__init__.py* file and add this:
+In an OpenERP module, edit the *\_\_init\_\_.py* file and add this:
 
 ```python
-from oerpjh import import modernize
+from oerpjh import modernize
 modernize()
 
 # your usual imports
