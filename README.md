@@ -1,9 +1,9 @@
 OpenERP-Jinja2-Haml
 ===================
 
-This lib allows you to use the way shorter [haml syntaxe](http://haml.info/)
-and the power of the [jinja2 templating engine](http://jinja.pocoo.org/docs/)
-in OpenERP views.
+This lib allows you to use a derivate of the way shorter [haml
+syntaxe](http://haml.info/) and the power of the [jinja2 templating
+engine](http://jinja.pocoo.org/docs/) in OpenERP views.
 
 Example
 -------
@@ -21,6 +21,17 @@ Example
           %field name='name'.
           %field name='description'.
           %field name='type'.
+```
+
+Which you could also write:
+```haml
+%openerp
+  %data
+    -with_tree "some_module.some_oerp_object"
+      %tree string="Some title"
+        %field name='name'.
+        %field name='description'.
+        %field name='type'.
 ```
 
 Become:
@@ -43,7 +54,7 @@ Become:
 </openerp>
 ```
 
-The exact syntax can be found [on the hamlish-jinja github's page](https://github.com/Pitmairen/hamlish-jinja).
+The exact haml syntax can be found [on the hamlish-jinja github's page](https://github.com/Pitmairen/hamlish-jinja).
 
 Installation
 ============
