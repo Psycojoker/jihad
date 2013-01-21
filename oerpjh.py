@@ -1,3 +1,7 @@
+# OpenERP-Jinja2-Haml - enable haml and jinja2 in OpenERP views
+# Copyright (C) 2013 Laurent Peuch <cortex@worlddomination.be>
+#                    Railnova SPRL <railnova@railnova.eu>
+#
 # This file is part of Openerp-Jinja2-Haml.
 #
 # OpenERP-Jinja2-Haml is free software: you can redistribute it and/or modify
