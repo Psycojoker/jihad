@@ -135,6 +135,52 @@ Example (you can include both *.haml* files and *.xml* files):
     -include "menus.xml"
 ```
 
+Advanced usage
+==============
+
+OpenERP often ask you to write of lot of repetitive code, by chance, Jinja2
+allows us to write some cool extensions to save us from this burden.
+
+Generic view wrapper
+--------------------
+
+Allow you to write classical form/search/tree view in a way shorter manner:
+
+```haml
+%record#view_some_module_some_oerp_object model="ir.ui.view"
+  %field name="name" << some_module.some_oerp_object.tree
+  %field name="model" << some_module.some_oerp_object
+  %field name="type"
+    tree
+  %field name="arch" type="xml"
+    %tree string="Some title"
+      %field name='name'.
+      %field name='description'.
+      %field name='type'.
+```
+
+Can be written:
+```haml
+-with_tree "some_module.some_oerp_object" string="Some title"
+  %field name='name'.
+  %field name='description'.
+  %field name='type'.
+```
+
+The syntax is:
+```haml
+-with_(tree,search,form) "model _name" option1="value1" option2="value2" ...
+  %field name='name'.
+  %field name='description'.
+  %field name='type'.
+```
+
+The available options are:
+
+* string: the title of the view, if none is supplied, the view won't have a title
+* id: the id of the view, the default value is "view_" + model_name.replace(".", "_")
+* name: the name of the view, the default value is: model_name + "." + view_type (for example "some_module.some_oerp_object.tree" in a tree view)
+
 Indenting the generated XML
 ===========================
 
