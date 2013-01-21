@@ -177,9 +177,9 @@ The syntax is:
 
 The available options are:
 
-* string: the title of the view, if none is supplied, the view won't have a title
-* id: the id of the view, the default value is "view_" + model_name.replace(".", "_")
-* name: the name of the view, the default value is: model_name + "." + view_type (for example "some_module.some_oerp_object.tree" in a tree view)
+* *string*: the title of the view, if none is supplied, the view won't have a title
+* *id*: the id of the view, the default value is "view_" + model_name.replace(".", "_")
+* *name*: the name of the view, the default value is: model_name + "." + view_type (for example "some_module.some_oerp_object.tree" in a tree view)
 
 Indenting the generated XML
 ===========================
