@@ -181,6 +181,8 @@ The available options are:
 * **id**: the id of the view, the default value is "view_" + model_name.replace(".", "_")
 * **name**: the name of the view, the default value is: model_name + "." + view_type (for example "some_module.some_oerp_object.tree" in a tree view)
 
+You don't have to supply any option, you can only write *-with_tree "model_name"* if you want to.
+
 Indenting the generated XML
 ===========================
 
