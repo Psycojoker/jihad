@@ -143,7 +143,7 @@ Example (you can include both *.haml* files and *.xml* files):
     -include "menus.xml"
 ```
 
-Useless <code><openerp><data></code>
+Useless \<openerp\>\<data\>
 -----------------------
 
 You don't need to write <code><openep><data></code> (or more exactly: %openerp%data) at the
@@ -154,7 +154,7 @@ will include it.
 You should not have the need to repeat yourself all the time.
 
 **This does not affect files included via the -include so you won't have any
-<code><openerp><data></code> appearing out of nowhere if you use it.**
+\<openerp\>\<data\> appearing out of nowhere if you use it.**
 
 Advanced usage
 ==============
