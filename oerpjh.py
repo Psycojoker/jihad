@@ -18,6 +18,7 @@
 # OpenERP-Jinja2-Haml.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import re
 import sys
 from jinja2 import Environment, FileSystemLoader, nodes
 from jinja2.ext import Extension
@@ -99,4 +100,7 @@ def modernize(indent=False):
         haml_file_path = os.path.join(module_directory, xml_file[:-3] + "haml")
         if not os.path.exists(haml_file_path):
             continue
-        open(os.path.join(module_directory, xml_file), "w").write(env.get_template(haml_file).render())
+        to_write = env.get_template(haml_file).render()
+        if not re.match("^\s*<\s*openerp\s*>\s*<\s*data\s*>", to_write):
+            to_write = env.hamlish_from_string("%openerp\n  %data\n    =body").render(body=to_write)
+        open(os.path.join(module_directory, xml_file), "w").write(to_write)
