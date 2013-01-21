@@ -25,40 +25,55 @@ Hamlish._self_closing_html_tags.add("menuitem")
 
 #Hamlish._self_closing_jinja_tags.add("with_tree")
 
-tree_template = """\
-%record#view_some_module_some_oerp_object model="ir.ui.view"
-  %field name="name" << {{ model_name }}.tree
-  %field name="model" << {{ model_name }}
-  %field name="type" << tree
-  %field name="arch" type="xml"
-    %tree{% if description %} string="{{ description }}"{% endif %}
-      =body
+generic_view_template = """\
+%record id="{{ id }}" model="ir.ui.view"
+              %field name="name" << {{ name }}
+              %field name="model" << {{ model_name }}
+              %field name="type" << {{ type }}
+              %field name="arch" type="xml"
+                <{{ type }}{% if description %} string="{{ description }}"{% endif %}>
+                  =body
+                </{{ type }}>
 """
 
 
-class WithTree(Extension):
-    tags = set(['with_tree'])
+class WithGenericView(Extension):
+    tags = set(['with_tree', 'with_form', 'with_search'])
 
     def parse(self, parser):
-        # skip tag name
-        lineno = parser.stream.next().lineno
+        view_type = parser.stream.next()
+        lineno = view_type.lineno
+        self.view_type = view_type.value[len("with_"):]
+
         model_name = parser.parse_expression().value
-        #from ipdb import set_trace; set_trace()
-        options = {"model_name": model_name}
+        options = self.update_default_options(model_name)
+
         while parser.stream.current.type != 'block_end':
             key = parser.parse_assign_target().name
+            if key not in options.keys():
+                parser.fail("unexcepted assignement: '%s' is not a valid option, valid options are: %s" % (key, ", ".join(options.keys())))
             parser.stream.expect('assign')
             value = parser.parse_tuple().value
             options[key] = value
+
         self.tag_options = options
         body = parser.parse_statements(['name:endwith_tree'], drop_needle=True)
+
         return nodes.CallBlock(self.call_method('_generate_view', []), [], [], body).set_lineno(lineno)
 
     def _generate_view(self, caller):
-        return env.hamlish_from_string(tree_template).render(body=caller().strip() + "\n", **self.tag_options)
+        return env.hamlish_from_string(generic_view_template).render(body=caller().strip() + "\n", type=self.view_type, **self.tag_options)
+
+    def update_default_options(self, model_name):
+        default_options = {
+            "model_name": model_name,
+            "id": "view_" + model_name.replace(".", "_"),
+            "name": model_name + "." + self.view_type,
+        }
+        return default_options
 
 
-env = Environment(extensions=[WithTree, HamlishExtension])
+env = Environment(extensions=[WithGenericView, HamlishExtension])
 
 
 def modernize(indent=False):
