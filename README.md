@@ -146,7 +146,7 @@ Example (you can include both *.haml* files and *.xml* files):
 Useless \<openerp\>\<data\>
 -----------------------
 
-You don't need to write <code><openep><data></code> (or more exactly: %openerp%data) at the
+You don't need to write \<openep\>\<data\> (or more exactly: %openerp%data) at the
 beginning of a view, OpenERP-Jinja2-Haml, before compiling a declared view in
 the \_\_openerp\_\_.py, will check if it's present and if it's not the case,
 will include it.
