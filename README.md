@@ -8,6 +8,27 @@ engine](http://jinja.pocoo.org/docs/) in OpenERP views.
 Example
 -------
 
+Tired of writing long and repetitive code like this?
+```xml
+<openerp>
+  <data>
+    <record id="view_some_module_some_oerp_object" model="ir.ui.view">
+      <field name="name">some_module.some_oerp_object.tree</field>
+      <field name="model">some_module.some_oerp_object</field>
+      <field name="type">tree</field>
+      <field name="arch" type="xml">
+        <tree string="Some title">
+          <field name='name'/>
+          <field name='description'/>
+          <field name='type'/>
+        </tree>
+      </field>
+    </record>
+  </data>
+</openerp>
+```
+
+You can now write it like this:
 ```haml
 %openerp
   %data
@@ -39,26 +60,6 @@ Or even (because writting <openerp><data> all the time is useless and boring):
   %field name='name'.
   %field name='description'.
   %field name='type'.
-```
-
-Become:
-```xml
-<openerp>
-  <data>
-    <record id="view_some_module_some_oerp_object" model="ir.ui.view">
-      <field name="name">some_module.some_oerp_object.tree</field>
-      <field name="model">some_module.some_oerp_object</field>
-      <field name="type">tree</field>
-      <field name="arch" type="xml">
-        <tree string="Some title">
-          <field name='name'/>
-          <field name='description'/>
-          <field name='type'/>
-        </tree>
-      </field>
-    </record>
-  </data>
-</openerp>
 ```
 
 The exact haml syntax can be found [on the hamlish-jinja github's page](https://github.com/Pitmairen/hamlish-jinja).
