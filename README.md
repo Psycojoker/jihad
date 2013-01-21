@@ -27,11 +27,10 @@ Which you could also write:
 ```haml
 %openerp
   %data
-    -with_tree "some_module.some_oerp_object"
-      %tree string="Some title"
-        %field name='name'.
-        %field name='description'.
-        %field name='type'.
+    -with_tree "some_module.some_oerp_object" string="Some title"
+      %field name='name'.
+      %field name='description'.
+      %field name='type'.
 ```
 
 Become:
