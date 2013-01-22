@@ -44,7 +44,7 @@ You can now write it like this:
           %field name='type'.
 ```
 
-Which you could also write:
+Which you could also write like this:
 ```haml
 %openerp
   %data
@@ -54,7 +54,7 @@ Which you could also write:
       %field name='type'.
 ```
 
-Or even (because writting \<openerp\>\<data\> all the time is useless and boring):
+Or even like this (because writting \<openerp\>\<data\> all the time is useless and boring):
 ```haml
 -with_tree "some_module.some_oerp_object" string="Some title"
   %field name='name'.
