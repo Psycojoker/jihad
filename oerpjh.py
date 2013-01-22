@@ -28,7 +28,7 @@ from hamlish_jinja import HamlishExtension, Hamlish
 Hamlish._self_closing_html_tags.add("newline")
 Hamlish._self_closing_html_tags.add("menuitem")
 
-#Hamlish._self_closing_jinja_tags.add("with_tree")
+Hamlish._self_closing_jinja_tags.add("f")
 
 generic_view_template = """\
 %record id="{{ id }}" model="ir.ui.view"
@@ -78,7 +78,30 @@ class WithGenericView(Extension):
         return default_options
 
 
-env = Environment(extensions=[WithGenericView, HamlishExtension])
+class FieldShortcut(Extension):
+    tags = set(['f'])
+    template = '%field name="{{ name }}"{% for key, value in options.items() %} {{ key }}="{{ value }}"{% endfor %}.'
+
+    def parse(self, parser):
+        lineno = parser.stream.next().lineno
+
+        self.name = parser.parse_expression().value
+        options = {}
+
+        while parser.stream.current.type != 'block_end':
+            key = parser.parse_assign_target().name
+            parser.stream.expect('assign')
+            value = parser.parse_tuple().value
+            options[key] = value
+
+        self.options = options
+
+        return nodes.CallBlock(self.call_method('_generate_view', []), [], [], []).set_lineno(lineno)
+
+    def _generate_view(self, caller):
+        return env.hamlish_from_string(self.template).render(name=self.name, options=self.options)
+
+env = Environment(extensions=[WithGenericView, FieldShortcut, HamlishExtension])
 
 
 def modernize(indent=False):
