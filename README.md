@@ -62,6 +62,14 @@ Or even like this (because writting \<openerp\>\<data\> all the time is useless 
   %field name='type'.
 ```
 
+Style too much for you? Here you go:
+```haml
+-with_tree "some_module.some_oerp_object" string="Some title"
+  -f "name"
+  -f "description"
+  -f "type"
+```
+
 The exact haml syntax can be found [on the hamlish-jinja github's page](https://github.com/Pitmairen/hamlish-jinja).
 
 Installation
