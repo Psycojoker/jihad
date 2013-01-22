@@ -165,6 +165,25 @@ You should not have the need to repeat yourself all the time.
 **This does not affect files included via the -include so you won't have any
 \<openerp\>\<data\> appearing out of nowhere if you use it.**
 
+Shortcut for \<field name="..." ... /\>
+---------------------------------------
+
+Since you'll spend
+[alot](http://hyperboleandahalf.blogspot.be/2010/04/alot-is-better-than-you-at-everything.html)
+of time writing \<field name="..." ... /\>, this lib provide an handy shortcut:
+
+Instead of writing:
+```xml
+<field name="field_name" option1="value1" option2="value2" ... />
+```
+
+You can simply write:
+```haml
+-f "field_name" option1="value1" option2="value2" ...
+```
+
+*field_name* is the only mandatory value to provide to this shortcut.
+
 Advanced usage
 ==============
 
