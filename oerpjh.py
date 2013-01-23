@@ -32,9 +32,10 @@ Hamlish._self_closing_jinja_tags.add("f")
 
 generic_view_template = """\
 %record id="{{ id }}" model="ir.ui.view"
-              %field name="name" << {{ name }}
               %field name="model" << {{ model_name }}
               %field name="type" << {{ type }}
+              -for key, value in self.options.items()
+                  %field name="{{ key }}" << {{ value }}
               %field name="arch" type="xml"
                 <{{ type }}{% if description %} string="{{ description }}"{% endif %}>
                   =body
@@ -50,32 +51,31 @@ class WithGenericView(Extension):
         lineno = view_type.lineno
         self.view_type = view_type.value[len("with_"):]
 
-        model_name = parser.parse_expression().value
-        options = self.update_default_options(model_name)
+        self.model_name = parser.parse_expression().value
+        self.options = {"name": self.model_name + "." + self.view_type}
+        self._id = "view_" + self.model_name.replace(".", "_")
+
 
         while parser.stream.current.type != 'block_end':
             key = parser.parse_assign_target().name
-            if key not in options.keys():
-                parser.fail("unexpected assignment: '%s' is not a valid option, valid options are: %s" % (key, ", ".join(filter(lambda x: x != "model_name", options.keys()))))
             parser.stream.expect('assign')
             value = parser.parse_tuple().value
-            options[key] = value
+            self.options[key] = value
 
-        self.tag_options = options
+        if self.options.has_key("id"):
+            self._id = self.options.get('id')
+            del self.options["id"]
+
+        if self.options.has_key("string"):
+            self.string = self.options["string"]
+            del self.options["string"]
+
         body = parser.parse_statements(['name:endwith_tree'], drop_needle=True)
 
         return nodes.CallBlock(self.call_method('_generate_view', []), [], [], body).set_lineno(lineno)
 
     def _generate_view(self, caller):
-        return env.hamlish_from_string(generic_view_template).render(body=caller().strip() + "\n", type=self.view_type, **self.tag_options)
-
-    def update_default_options(self, model_name):
-        default_options = {
-            "model_name": model_name,
-            "id": "view_" + model_name.replace(".", "_"),
-            "name": model_name + "." + self.view_type,
-        }
-        return default_options
+        return env.hamlish_from_string(generic_view_template).render(body=caller().strip() + "\n", type=self.view_type, id=self._id, description=self.string, **self.tag_options)
 
 
 class FieldShortcut(Extension):
