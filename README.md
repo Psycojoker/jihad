@@ -224,9 +224,11 @@ The syntax is:
   %field name='type'.
 ```
 
-The available options are:
+Every option you add will be added to the view option next to the
+name/model/type options. The 2 only exceptions are: id and string that will
+take their expected places.
 
-* **string**: the title of the view, if none is supplied, the view won't have a title
+Here are the options that came with default values:
 * **id**: the id of the view, the default value is "view_" + model_name.replace(".", "_")
 * **name**: the name of the view, the default value is: model_name + "." + view_type (for example "some_module.some_oerp_object.tree" in a tree view)
 
