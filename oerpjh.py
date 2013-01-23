@@ -34,8 +34,8 @@ generic_view_template = """\
 %record id="{{ id }}" model="ir.ui.view"
               %field name="model" << {{ model_name }}
               %field name="type" << {{ type }}
-              -for key, value in self.options.items()
-                  %field name="{{ key }}" << {{ value }}
+              -for key, value in options.items()
+                %field name="{{ key }}" << {{ value }}
               %field name="arch" type="xml"
                 <{{ type }}{% if description %} string="{{ description }}"{% endif %}>
                   =body
@@ -54,7 +54,7 @@ class WithGenericView(Extension):
         self.model_name = parser.parse_expression().value
         self.options = {"name": self.model_name + "." + self.view_type}
         self._id = "view_" + self.model_name.replace(".", "_")
-
+        self.string = None
 
         while parser.stream.current.type != 'block_end':
             key = parser.parse_assign_target().name
@@ -75,7 +75,7 @@ class WithGenericView(Extension):
         return nodes.CallBlock(self.call_method('_generate_view', []), [], [], body).set_lineno(lineno)
 
     def _generate_view(self, caller):
-        return env.hamlish_from_string(generic_view_template).render(body=caller().strip() + "\n", type=self.view_type, id=self._id, description=self.string, **self.tag_options)
+        return env.hamlish_from_string(generic_view_template).render(body=caller().strip() + "\n", type=self.view_type, id=self._id, description=self.string, model_name=self.model_name, options=self.options)
 
 
 class FieldShortcut(Extension):
