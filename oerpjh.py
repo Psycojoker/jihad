@@ -68,43 +68,66 @@ class WithGenericView(BaseExtension):
     tags = set(['tree', 'form', 'search', 'list'])
 
     def parse(self, parser):
-        arguments = {}
+        args = {}
 
         view_type = parser.stream.next()
         lineno = view_type.lineno
-        arguments["view_type"] = view_type.value
+        args["view_type"] = view_type.value
 
-        arguments["model_name"] = parser.parse_expression().value
+        args["model_name"] = parser.parse_expression().value
 
+        # TODO: write doc for with_list
 
-        arguments["options"] = {"name": arguments["model_name"] + "." + arguments["view_type"]}
-        arguments["options"].update(self.parse_options(parser))
+        args["options"] = {"name": args["model_name"] + "." + args["view_type"]}
+        args["options"].update(self.parse_options(parser))
 
-        arguments["_id"] = self.extract_argument("id", arguments["options"], default="view_" + arguments["model_name"].replace(".", "_") + "_" + arguments["view_type"])
-        arguments["string"] = self.extract_argument("string", arguments["options"])
+        args["_id"] = self.extract_argument("id", args["options"], default="view_" + args["model_name"].replace(".", "_") + "_" + args["view_type"])
+        args["string"] = self.extract_argument("string", args["options"])
 
+        args["has_menu"] = self.extract_argument("has_menu", args["options"], False) or\
+                            len(filter(lambda x: x.startswith("menu_"), args["options"])) > 0
+        args["has_action"] = self.extract_argument("has_action", args["options"], False) or\
+                            len(filter(lambda x: x.startswith("action_"), args["options"])) > 0 or\
+                            args["has_menu"]
 
+        args["action_options"] = {
+            "name": " ".join(args["model_name"].split(".")[1:]).title(),
+            "view_type": args["view_type"] if args["view_type"] != "list" else "tree",
+        }
+        args["menu_options"] = {"name": " ".join(args["model_name"].split(".")[1:]).title()}
 
+        for key in args["options"]:
+            if key.startswith("action_"):
+                args["action_options"][key.replace("action_", "", 1)] = args["options"][key]
+                del args["options"][key]
+            elif key.startswith("menu_"):
+                args["menu_options"][key.replace("menu_", "", 1)] = args["options"][key]
+                del args["options"][key]
 
-        body = parser.parse_statements(['name:end%s' % arguments["view_type"]], drop_needle=True)
+        args["action_id"] = self.extract_argument("id", options=args["action_options"], default="action_" + args["model_name"].replace(".", "_") + "_" + args["view_type"])
+        args["menu_id"] = self.extract_argument("id", options=args["menu_options"], default="menu_" + args["model_name"].replace(".", "_") + "_" + args["view_type"])
 
-        return nodes.CallBlock(self.call_method('_generate_view', [nodes.Const(arguments)]), [], [], body).set_lineno(lineno)
+        args["search_view_id"] = self.extract_argument("search_view_id", options=args["action_options"])
 
-    def _generate_view(self, arguments, caller):
+        body = parser.parse_statements(['name:end%s' % args["view_type"]], drop_needle=True)
+
+        return nodes.CallBlock(self.call_method('_generate_view', [nodes.Const(args)]), [], [], body).set_lineno(lineno)
+
+    def _generate_view(self, args, caller):
         template = env.hamlish_from_string(GENERIC_VIEW_TEMPLATE)
         return template.render(body=caller().strip() + "\n",
-                               type=arguments["view_type"] if arguments["view_type"] != "list" else "tree",
-                               id=arguments["_id"],
-                               description=arguments["string"],
-                               model_name=arguments["model_name"],
-                               options=arguments["options"],
-                               has_action=arguments["has_action"],
-                               has_menu=arguments["has_menu"],
-                               action_options=arguments["action_options"],
-                               menu_options=arguments["menu_options"],
-                               action_id=arguments["action_id"],
-                               menu_id=arguments["menu_id"],
-                               search_view_id=arguments["search_view_id"],
+                               type=args["view_type"] if args["view_type"] != "list" else "tree",
+                               id=args["_id"],
+                               description=args["string"],
+                               model_name=args["model_name"],
+                               options=args["options"],
+                               has_action=args["has_action"],
+                               has_menu=args["has_menu"],
+                               action_options=args["action_options"],
+                               menu_options=args["menu_options"],
+                               action_id=args["action_id"],
+                               menu_id=args["menu_id"],
+                               search_view_id=args["search_view_id"],
                               )
 
 
@@ -115,14 +138,14 @@ class FieldShortcut(BaseExtension):
     tags = set(['f'])
 
     def parse(self, parser):
-        arguments = {}
+        args = {}
         lineno = parser.stream.next().lineno
-        arguments["name"] = parser.parse_expression().value
-        arguments["options"] = self.parse_options(parser)
-        return nodes.CallBlock(self.call_method('_generate_view', [nodes.Const(arguments)]), [], [], []).set_lineno(lineno)
+        args["name"] = parser.parse_expression().value
+        args["options"] = self.parse_options(parser)
+        return nodes.CallBlock(self.call_method('_generate_view', [nodes.Const(args)]), [], [], []).set_lineno(lineno)
 
-    def _generate_view(self, arguments, caller):
-        return env.hamlish_from_string(FIELD_TEMPLATE).render(name=arguments["name"], options=arguments["options"])
+    def _generate_view(self, args, caller):
+        return env.hamlish_from_string(FIELD_TEMPLATE).render(name=args["name"], options=args["options"])
 
 
 env = Environment(extensions=[WithGenericView, FieldShortcut, HamlishExtension])
