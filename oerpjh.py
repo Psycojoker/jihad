@@ -30,6 +30,29 @@ Hamlish._self_closing_html_tags.add("menuitem")
 
 Hamlish._self_closing_jinja_tags.add("f")
 
+
+class BaseExtension(Extension):
+    def extract_argument(self, argument, default=None, options=None):
+        if options is None:
+            options = self.options
+        to_return = default
+        if options.has_key(argument):
+            to_return = options.get(argument)
+            del options[argument]
+
+        return to_return
+
+    def parse_options(self, parser):
+        options = {}
+        while parser.stream.current.type != 'block_end':
+            key = parser.parse_assign_target().name
+            parser.stream.expect('assign')
+            value = parser.parse_tuple().value
+            options[key] = value
+
+        return options
+
+
 generic_view_template = """\
 %record id="{{ id }}" model="ir.ui.view"
               %field name="model" << {{ model_name }}
@@ -43,7 +66,7 @@ generic_view_template = """\
 """
 
 
-class WithGenericView(Extension):
+class WithGenericView(BaseExtension):
     tags = set(['with_tree', 'with_form', 'with_search'])
 
     def parse(self, parser):
@@ -52,9 +75,9 @@ class WithGenericView(Extension):
         self.view_type = view_type.value[len("with_"):]
 
         self.model_name = parser.parse_expression().value
-        self.options = {"name": self.model_name + "." + self.view_type}
 
-        self.options = self.get_options(parser)
+        self.options = {"name": self.model_name + "." + self.view_type}
+        self.options.update(self.parse_options(parser))
 
         self._id = self.extract_argument("id", "view_" + self.model_name.replace(".", "_"))
         self.string = self.extract_argument("string")
@@ -65,24 +88,6 @@ class WithGenericView(Extension):
 
         return nodes.CallBlock(self.call_method('_generate_view', []), [], [], body).set_lineno(lineno)
 
-    def extract_argument(self, argument, default=None):
-        to_return = default
-        if self.options.has_key("id"):
-            to_return = self.options.get('id')
-            del self.options["id"]
-
-        return to_return
-
-    def get_options(self, parser):
-        options = {}
-        while parser.stream.current.type != 'block_end':
-            key = parser.parse_assign_target().name
-            parser.stream.expect('assign')
-            value = parser.parse_tuple().value
-            options[key] = value
-
-        return options
-
     def _generate_view(self, caller):
         return env.hamlish_from_string(generic_view_template).render(body=caller().strip() + "\n",
                                                                      type=self.view_type,
@@ -92,28 +97,19 @@ class WithGenericView(Extension):
                                                                      options=self.options)
 
 
-class FieldShortcut(Extension):
+class FieldShortcut(BaseExtension):
     tags = set(['f'])
     template = '%field name="{{ name }}"{% for key, value in options.items() %} {{ key }}="{{ value }}"{% endfor %}.'
 
     def parse(self, parser):
         lineno = parser.stream.next().lineno
-
         self.name = parser.parse_expression().value
-        options = {}
-
-        while parser.stream.current.type != 'block_end':
-            key = parser.parse_assign_target().name
-            parser.stream.expect('assign')
-            value = parser.parse_tuple().value
-            options[key] = value
-
-        self.options = options
-
+        self.options = self.parse_options(parser)
         return nodes.CallBlock(self.call_method('_generate_view', []), [], [], []).set_lineno(lineno)
 
     def _generate_view(self, caller):
         return env.hamlish_from_string(self.template).render(name=self.name, options=self.options)
+
 
 env = Environment(extensions=[WithGenericView, FieldShortcut, HamlishExtension])
 
