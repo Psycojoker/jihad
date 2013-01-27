@@ -51,7 +51,7 @@ class BaseExtension(Extension):
         return options
 
 
-generic_view_template = """\
+GENERIC_VIEW_TEMPLATE = """\
 %record id="{{ id }}" model="ir.ui.view"
               %field name="model" << {{ model_name }}
               %field name="type" << {{ type }}
@@ -91,7 +91,7 @@ class WithGenericView(BaseExtension):
         return nodes.CallBlock(self.call_method('_generate_view', [nodes.Const(arguments)]), [], [], body).set_lineno(lineno)
 
     def _generate_view(self, arguments, caller):
-        template = env.hamlish_from_string(generic_view_template)
+        template = env.hamlish_from_string(GENERIC_VIEW_TEMPLATE)
         return template.render(body=caller().strip() + "\n",
                                type=arguments["view_type"] if arguments["view_type"] != "list" else "tree",
                                id=arguments["_id"],
@@ -108,9 +108,11 @@ class WithGenericView(BaseExtension):
                               )
 
 
+FIELD_TEMPLATE = '%field name="{{ name }}"{% for key, value in options.items() %} {{ key }}="{{ value }}"{% endfor %}.'
+
+
 class FieldShortcut(BaseExtension):
     tags = set(['f'])
-    template = '%field name="{{ name }}"{% for key, value in options.items() %} {{ key }}="{{ value }}"{% endfor %}.'
 
     def parse(self, parser):
         arguments = {}
@@ -120,7 +122,7 @@ class FieldShortcut(BaseExtension):
         return nodes.CallBlock(self.call_method('_generate_view', [nodes.Const(arguments)]), [], [], []).set_lineno(lineno)
 
     def _generate_view(self, arguments, caller):
-        return env.hamlish_from_string(field_template).render(name=arguments["name"], options=arguments["options"])
+        return env.hamlish_from_string(FIELD_TEMPLATE).render(name=arguments["name"], options=arguments["options"])
 
 
 env = Environment(extensions=[WithGenericView, FieldShortcut, HamlishExtension])
