@@ -48,7 +48,7 @@ Which you could also write like this:
 ```haml
 %openerp
   %data
-    -with_tree "some_module.some_oerp_object" string="Some title"
+    -tree "some_module.some_oerp_object" string="Some title"
       %field name='name'.
       %field name='description'.
       %field name='type'.
@@ -56,7 +56,7 @@ Which you could also write like this:
 
 Or even like this (because writting \<openerp\>\<data\> all the time is useless and boring):
 ```haml
--with_tree "some_module.some_oerp_object" string="Some title"
+-tree "some_module.some_oerp_object" string="Some title"
   %field name='name'.
   %field name='description'.
   %field name='type'.
@@ -64,7 +64,7 @@ Or even like this (because writting \<openerp\>\<data\> all the time is useless 
 
 Style too much for you? Here you go:
 ```haml
--with_tree "some_module.some_oerp_object" string="Some title"
+-tree "some_module.some_oerp_object" string="Some title"
   -f "name"
   -f "description"
   -f "type"
@@ -210,7 +210,7 @@ Allow you to write classical form/search/tree view in a way shorter manner:
 
 Can be written:
 ```haml
--with_tree "some_module.some_oerp_object" string="Some title"
+-tree "some_module.some_oerp_object" string="Some title"
   %field name='name'.
   %field name='description'.
   %field name='type'.
@@ -218,7 +218,7 @@ Can be written:
 
 The syntax is:
 ```haml
--with_(tree,search,form) "model _name" option1="value1" option2="value2" ...
+-(tree,search,form) "model _name" option1="value1" option2="value2" ...
   %field name='name'.
   %field name='description'.
   %field name='type'.
@@ -232,7 +232,7 @@ Here are the options that came with default values:
 * **id**: the id of the view, the default value is "view_" + model_name.replace(".", "_")
 * **name**: the name of the view, the default value is: model_name + "." + view_type (for example "some_module.some_oerp_object.tree" in a tree view)
 
-You don't have to supply any option, you can only write *-with_tree "model_name"* if you want to.
+You don't have to supply any option, you can only write *-tree "model_name"* if you want to.
 
 Indenting the generated XML
 ===========================
