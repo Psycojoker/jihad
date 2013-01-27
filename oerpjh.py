@@ -89,12 +89,14 @@ class WithGenericView(BaseExtension):
         return nodes.CallBlock(self.call_method('_generate_view', []), [], [], body).set_lineno(lineno)
 
     def _generate_view(self, caller):
-        return env.hamlish_from_string(generic_view_template).render(body=caller().strip() + "\n",
-                                                                     type=self.view_type,
-                                                                     id=self._id,
-                                                                     description=self.string,
-                                                                     model_name=self.model_name,
-                                                                     options=self.options)
+        template = env.hamlish_from_string(generic_view_template)
+        return template.render(body=caller().strip() + "\n",
+                               type=self.view_type,
+                               id=self._id,
+                               description=self.string,
+                               model_name=self.model_name,
+                               options=self.options,
+                              )
 
 
 class FieldShortcut(BaseExtension):
