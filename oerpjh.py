@@ -32,9 +32,7 @@ Hamlish._self_closing_jinja_tags.add("f")
 
 
 class BaseExtension(Extension):
-    def extract_argument(self, argument, default=None, options=None):
-        if options is None:
-            options = self.options
+    def extract_argument(self, argument, options, default=None):
         to_return = default
         if options.has_key(argument):
             to_return = options.get(argument)
@@ -70,32 +68,43 @@ class WithGenericView(BaseExtension):
     tags = set(['with_tree', 'with_form', 'with_search'])
 
     def parse(self, parser):
+        arguments = {}
+
         view_type = parser.stream.next()
         lineno = view_type.lineno
-        self.view_type = view_type.value[len("with_"):]
+        arguments["view_type"] = view_type.value[len("with_"):]
 
-        self.model_name = parser.parse_expression().value
-
-        self.options = {"name": self.model_name + "." + self.view_type}
-        self.options.update(self.parse_options(parser))
-
-        self._id = self.extract_argument("id", "view_" + self.model_name.replace(".", "_"))
-        self.string = self.extract_argument("string")
+        arguments["model_name"] = parser.parse_expression().value
 
 
+        arguments["options"] = {"name": arguments["model_name"] + "." + arguments["view_type"]}
+        arguments["options"].update(self.parse_options(parser))
 
-        body = parser.parse_statements(['name:endwith_tree'], drop_needle=True)
+        arguments["_id"] = self.extract_argument("id", arguments["options"], default="view_" + arguments["model_name"].replace(".", "_") + "_" + arguments["view_type"])
+        arguments["string"] = self.extract_argument("string", arguments["options"])
 
-        return nodes.CallBlock(self.call_method('_generate_view', []), [], [], body).set_lineno(lineno)
 
-    def _generate_view(self, caller):
+
+
+        body = parser.parse_statements(['name:endwith_%s' % arguments["view_type"]], drop_needle=True)
+
+        return nodes.CallBlock(self.call_method('_generate_view', [nodes.Const(arguments)]), [], [], body).set_lineno(lineno)
+
+    def _generate_view(self, arguments, caller):
         template = env.hamlish_from_string(generic_view_template)
         return template.render(body=caller().strip() + "\n",
-                               type=self.view_type,
-                               id=self._id,
-                               description=self.string,
-                               model_name=self.model_name,
-                               options=self.options,
+                               type=arguments["view_type"] if arguments["view_type"] != "list" else "tree",
+                               id=arguments["_id"],
+                               description=arguments["string"],
+                               model_name=arguments["model_name"],
+                               options=arguments["options"],
+                               has_action=arguments["has_action"],
+                               has_menu=arguments["has_menu"],
+                               action_options=arguments["action_options"],
+                               menu_options=arguments["menu_options"],
+                               action_id=arguments["action_id"],
+                               menu_id=arguments["menu_id"],
+                               search_view_id=arguments["search_view_id"],
                               )
 
 
@@ -104,13 +113,14 @@ class FieldShortcut(BaseExtension):
     template = '%field name="{{ name }}"{% for key, value in options.items() %} {{ key }}="{{ value }}"{% endfor %}.'
 
     def parse(self, parser):
+        arguments = {}
         lineno = parser.stream.next().lineno
-        self.name = parser.parse_expression().value
-        self.options = self.parse_options(parser)
-        return nodes.CallBlock(self.call_method('_generate_view', []), [], [], []).set_lineno(lineno)
+        arguments["name"] = parser.parse_expression().value
+        arguments["options"] = self.parse_options(parser)
+        return nodes.CallBlock(self.call_method('_generate_view', [nodes.Const(arguments)]), [], [], []).set_lineno(lineno)
 
-    def _generate_view(self, caller):
-        return env.hamlish_from_string(self.template).render(name=self.name, options=self.options)
+    def _generate_view(self, arguments, caller):
+        return env.hamlish_from_string(field_template).render(name=arguments["name"], options=arguments["options"])
 
 
 env = Environment(extensions=[WithGenericView, FieldShortcut, HamlishExtension])
