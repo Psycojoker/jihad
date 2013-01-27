@@ -20,6 +20,7 @@
 import os
 import re
 import sys
+import subprocess
 from jinja2 import Environment, FileSystemLoader, nodes
 from jinja2.ext import Extension
 from hamlish_jinja import HamlishExtension, Hamlish
@@ -186,4 +187,19 @@ def modernize(indent=False):
         to_write = env.get_template(haml_file).render()
         if not re.match("^\s*<\s*openerp\s*>\s*<\s*data\s*>", to_write):
             to_write = env.hamlish_from_string("%openerp\n  %data\n    =body").render(body=to_write)
+        to_write = format_xml(xml_file, to_write)
         open(os.path.join(module_directory, xml_file), "w").write(to_write)
+
+
+def format_xml(xml_file, to_write):
+    xmllint_is_installed = subprocess.Popen(['which', 'xmllint'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]
+    if not xmllint_is_installed:
+        sys.stderr.write("Warning: you don't have xmlllint installed, you won't have nicely formated xml")
+        return to_write
+
+    formated, err = subprocess.Popen(['xmllint', '--format', '/dev/stdin'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate(to_write)
+    if err:
+        print "Error while trying to format the xml of %s: '%s'" % (xml_file, err)
+    else:
+        to_write = formated
+    return to_write

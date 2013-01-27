@@ -10,6 +10,7 @@ Example
 
 Tired of writing long and repetitive code like this?
 ```xml
+<?xml version="1.0"?>
 <openerp>
   <data>
     <record id="view_some_module_some_oerp_object" model="ir.ui.view">
