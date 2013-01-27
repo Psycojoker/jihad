@@ -71,6 +71,9 @@ GENERIC_VIEW_TEMPLATE = """\
                   %field name="search_view_id" ref="{{ search_view_id }}".
               -for key, value in action_options.items()
                 %field name="{{ key }}" << {{ value }}
+
+-if has_menu
+              %menuitem id="{{ menu_id }}" action="{{ action_id }}" {% for key, value in menu_options.items() %} {{ key }}="{{ value }}"{% endfor %}
 """
 
 
@@ -104,15 +107,17 @@ class WithGenericView(BaseExtension):
             "name": " ".join(args["model_name"].split(".")[1:]).title(),
             "view_type": args["view_type"] if args["view_type"] != "list" else "tree",
         }
-        args["menu_options"] = {"name": " ".join(args["model_name"].split(".")[1:]).title()}
+        args["menu_options"] = {
+            "name": " ".join(args["model_name"].split(".")[1:]).title(),
+        }
 
         for key in args["options"]:
             if key.startswith("action_"):
                 args["action_options"][key.replace("action_", "", 1)] = args["options"][key]
-                del args["options"][key]
             elif key.startswith("menu_"):
                 args["menu_options"][key.replace("menu_", "", 1)] = args["options"][key]
-                del args["options"][key]
+
+        args["options"] = dict(filter(lambda x: not x[0].startswith("action_") and x[0].startswith("menu_"), args["options"].items()))
 
         args["action_id"] = self.extract_argument("id", options=args["action_options"], default="action_" + args["model_name"].replace(".", "_") + "_" + args["view_type"])
         args["menu_id"] = self.extract_argument("id", options=args["menu_options"], default="menu_" + args["model_name"].replace(".", "_") + "_" + args["view_type"])
