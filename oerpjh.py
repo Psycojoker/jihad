@@ -53,26 +53,35 @@ class WithGenericView(Extension):
 
         self.model_name = parser.parse_expression().value
         self.options = {"name": self.model_name + "." + self.view_type}
-        self._id = "view_" + self.model_name.replace(".", "_")
-        self.string = None
 
-        while parser.stream.current.type != 'block_end':
-            key = parser.parse_assign_target().name
-            parser.stream.expect('assign')
-            value = parser.parse_tuple().value
-            self.options[key] = value
+        self.options = self.get_options(parser)
 
-        if self.options.has_key("id"):
-            self._id = self.options.get('id')
-            del self.options["id"]
+        self._id = self.extract_argument("id", "view_" + self.model_name.replace(".", "_"))
+        self.string = self.extract_argument("string")
 
-        if self.options.has_key("string"):
-            self.string = self.options["string"]
-            del self.options["string"]
+
 
         body = parser.parse_statements(['name:endwith_tree'], drop_needle=True)
 
         return nodes.CallBlock(self.call_method('_generate_view', []), [], [], body).set_lineno(lineno)
+
+    def extract_argument(self, argument, default=None):
+        to_return = default
+        if self.options.has_key("id"):
+            to_return = self.options.get('id')
+            del self.options["id"]
+
+        return to_return
+
+    def get_options(self, parser):
+        options = {}
+        while parser.stream.current.type != 'block_end':
+            key = parser.parse_assign_target().name
+            parser.stream.expect('assign')
+            value = parser.parse_tuple().value
+            options[key] = value
+
+        return options
 
     def _generate_view(self, caller):
         return env.hamlish_from_string(generic_view_template).render(body=caller().strip() + "\n",
