@@ -65,14 +65,14 @@ GENERIC_VIEW_TEMPLATE = """\
 
 
 class WithGenericView(BaseExtension):
-    tags = set(['with_tree', 'with_form', 'with_search'])
+    tags = set(['tree', 'form', 'search', 'list'])
 
     def parse(self, parser):
         arguments = {}
 
         view_type = parser.stream.next()
         lineno = view_type.lineno
-        arguments["view_type"] = view_type.value[len("with_"):]
+        arguments["view_type"] = view_type.value
 
         arguments["model_name"] = parser.parse_expression().value
 
@@ -86,7 +86,7 @@ class WithGenericView(BaseExtension):
 
 
 
-        body = parser.parse_statements(['name:endwith_%s' % arguments["view_type"]], drop_needle=True)
+        body = parser.parse_statements(['name:end%s' % arguments["view_type"]], drop_needle=True)
 
         return nodes.CallBlock(self.call_method('_generate_view', [nodes.Const(arguments)]), [], [], body).set_lineno(lineno)
 
