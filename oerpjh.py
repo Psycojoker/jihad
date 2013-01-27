@@ -61,6 +61,16 @@ GENERIC_VIEW_TEMPLATE = """\
                 <{{ type }}{% if description %} string="{{ description }}"{% endif %}>
                   =body
                 </{{ type }}>
+
+-if has_action
+            %record id="{{ action_id }}" model="ir.actions.act_window"
+              %field name="type" << ir.actions.act_window
+              %field name="res_model" << {{ model_name }}
+              %field name="view_id" ref="{{ id }}".
+              -if search_view_id:
+                  %field name="search_view_id" ref="{{ search_view_id }}".
+              -for key, value in action_options.items()
+                %field name="{{ key }}" << {{ value }}
 """
 
 
