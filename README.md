@@ -234,32 +234,6 @@ Here are the options that came with default values:
 
 You don't have to supply any option, you can only write *-tree "model_name"* if you want to.
 
-Indenting the generated XML
-===========================
-
-By default, OpenERP-Jinja2-haml doesn't indent the generated xml because their
-is a bug in OpenERP server (at least the 6.0 version).
-
-For example, if you write:
-
-```xml
-<field name="type">
-    tree
-</field>
-```
-
-Instead of:
-
-```xml
-<field name="type">tree</field>
-```
-
-You'll get an error message that will looks like this:
-
-    osv.orm.except_orm: ('ValidateError', 'The value "\n                tree\n            " for the field "type" is not in the selection')
-
-Yes, OpenERP is too stupid to do a .strip() on the string.
-
 Yes, I want indented xml files
 ------------------------------
 

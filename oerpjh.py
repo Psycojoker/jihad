@@ -174,8 +174,6 @@ def modernize(indent=False):
         return
 
     env.loader = FileSystemLoader(module_directory)
-    if indent:
-        env.hamlish_mode = 'indented'
 
     module_settings = eval(open(os.path.join(module_directory, "__openerp__.py")).read())
     xml_files = list(set(filter(lambda x: x.strip().endswith(".xml"), module_settings.get("init_xml", []) + module_settings.get("data", []) + module_settings.get("update_xml", []))))
