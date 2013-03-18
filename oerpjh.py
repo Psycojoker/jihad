@@ -30,6 +30,7 @@ Hamlish._self_closing_html_tags.add("newline")
 Hamlish._self_closing_html_tags.add("menuitem")
 
 Hamlish._self_closing_jinja_tags.add("f")
+Hamlish._self_closing_jinja_tags.add("fields")
 
 
 class BaseExtension(Extension):
@@ -164,7 +165,29 @@ class FieldShortcut(BaseExtension):
         return env.hamlish_from_string(FIELD_TEMPLATE).render(name=args["name"], options=args["options"])
 
 
-env = Environment(extensions=[WithGenericView, FieldShortcut, HamlishExtension])
+FIELDS_LIST_TEMPLATE = '''\
+-for field in fields:
+  %field name="{{ field }}".
+'''
+
+class FieldsListShortcut(BaseExtension):
+    tags = set(['fields'])
+
+    def parse(self, parser):
+        args = {"fields": []}
+        lineno = parser.stream.next().lineno
+
+        while parser.stream.current.type != 'block_end':
+            args["fields"].append(parser.stream.current.value)
+            parser.stream.next()
+
+        return nodes.CallBlock(self.call_method('_generate_view', [nodes.Const(args)]), [], [], []).set_lineno(lineno)
+
+    def _generate_view(self, args, caller):
+        return env.hamlish_from_string(FIELDS_LIST_TEMPLATE).render(fields=args["fields"])
+
+
+env = Environment(extensions=[WithGenericView, FieldShortcut, FieldsListShortcut, HamlishExtension])
 
 
 def modernize(indent=False):
