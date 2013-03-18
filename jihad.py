@@ -95,11 +95,15 @@ class WithGenericView(BaseExtension):
         args["options"] = {"name": args["model_name"] + "." + args["view_type"]}
         args["options"].update(self.parse_options(parser))
 
-        args["_id"] = self.extract_argument("id", args["options"], default="view_" + args["model_name"].replace(".", "_") + "_" + args["view_type"])
-        args["string"] = self.extract_argument("string", args["options"])
+        args["_id"] = self.extract_argument("id", args["options"],
+                                            default="view_" + args["model_name"].replace(".", "_") + "_" + args["view_type"])
+
+        args["string"] = self.extract_argument("string",
+                                               args["options"])
 
         args["has_menu"] = self.extract_argument("has_menu", args["options"], False) or\
                             len(filter(lambda x: x.startswith("menu_"), args["options"])) > 0
+
         args["has_action"] = self.extract_argument("has_action", args["options"], False) or\
                             len(filter(lambda x: x.startswith("action_"), args["options"])) > 0 or\
                             args["has_menu"]
@@ -108,6 +112,7 @@ class WithGenericView(BaseExtension):
             "name": " ".join(args["model_name"].split(".")[1:]).title(),
             "view_type": args["view_type"] if args["view_type"] != "list" else "form",
         }
+
         args["menu_options"] = {
             "name": " ".join(args["model_name"].split(".")[1:]).title(),
         }
@@ -120,14 +125,22 @@ class WithGenericView(BaseExtension):
 
         args["options"] = dict(filter(lambda x: not x[0].startswith("action_") and x[0].startswith("menu_"), args["options"].items()))
 
-        args["action_id"] = self.extract_argument("id", options=args["action_options"], default="action_" + args["model_name"].replace(".", "_") + "_" + args["view_type"])
-        args["menu_id"] = self.extract_argument("id", options=args["menu_options"], default="menu_" + args["model_name"].replace(".", "_") + "_" + args["view_type"])
+        args["action_id"] = self.extract_argument("id",
+                                                  options=args["action_options"],
+                                                  default="action_" + args["model_name"].replace(".", "_") + "_" + args["view_type"])
 
-        args["search_view_id"] = self.extract_argument("search_view_id", options=args["action_options"])
+        args["menu_id"] = self.extract_argument("id",
+                                                options=args["menu_options"],
+                                                default="menu_" + args["model_name"].replace(".", "_") + "_" + args["view_type"])
 
-        body = parser.parse_statements(['name:end%s' % args["view_type"]], drop_needle=True)
+        args["search_view_id"] = self.extract_argument("search_view_id",
+                                                       options=args["action_options"])
 
-        return nodes.CallBlock(self.call_method('_generate_view', [nodes.Const(args)]), [], [], body).set_lineno(lineno)
+        body = parser.parse_statements(['name:end%s' % args["view_type"]],
+                                       drop_needle=True)
+
+        return nodes.CallBlock(self.call_method('_generate_view', [nodes.Const(args)]),
+                               [], [], body).set_lineno(lineno)
 
     def _generate_view(self, args, caller):
         template = env.hamlish_from_string(GENERIC_VIEW_TEMPLATE)
