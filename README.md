@@ -71,6 +71,12 @@ Style too much for you? Here you go:
   -f "type"
 ```
 
+Even lazyier?
+```haml
+-tree "some_module.some_oerp_object" string="Some title"
+  -fields "name" "description" "type"
+```
+
 The exact haml syntax can be found [on the hamlish-jinja github's page](https://github.com/Pitmairen/hamlish-jinja).
 
 Installation
