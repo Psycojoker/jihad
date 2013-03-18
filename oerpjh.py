@@ -91,7 +91,7 @@ class WithGenericView(BaseExtension):
 
         args["model_name"] = parser.parse_expression().value
 
-        # TODO: write doc for with_list
+        # TODO: write doc for {% list %}
 
         args["options"] = {"name": args["model_name"] + "." + args["view_type"]}
         args["options"].update(self.parse_options(parser))
