@@ -224,5 +224,5 @@ def format_xml(xml_file, to_write):
     if err:
         print "Error while trying to format the xml of %s: '%s'" % (xml_file, err)
     else:
-        to_write = formated
+        to_write = formated.replace("</record>", "</record>\n")
     return to_write
