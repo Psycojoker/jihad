@@ -106,7 +106,7 @@ class WithGenericView(BaseExtension):
 
         args["action_options"] = {
             "name": " ".join(args["model_name"].split(".")[1:]).title(),
-            "view_type": args["view_type"] if args["view_type"] != "list" else "tree",
+            "view_type": args["view_type"] if args["view_type"] != "list" else "form",
         }
         args["menu_options"] = {
             "name": " ".join(args["model_name"].split(".")[1:]).title(),
