@@ -82,11 +82,17 @@ The exact haml syntax can be found [on the hamlish-jinja github's page](https://
 Installation
 ============
 
+From pip
+--------
+
+    pip install jihad
+
+From source
+-----------
+
     git clone git://github.com/Psycojoker/Jihad.git
     cd Jihad
     sudo python setup.py install
-
-Haven't pushed on pypi yet.
 
 Usage
 =====
