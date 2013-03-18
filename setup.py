@@ -22,16 +22,16 @@
 
 from setuptools import setup
 
-setup(name='oerpjh',
+setup(name='jihad',
       version='0.1',
       description='Use haml and jinja2 in OpenERP views',
       author='Laurent Peuch',
       #long_description='',
       author_email='cortex@worlddomination.be',
-      url='http://',
+      url='https://github.com/Psycojoker/jihad',
       install_requires=['Hamlish-Jinja'],
       packages=[],
-      py_modules=['oerpjh'],
+      py_modules=['jihad'],
       license= 'GPLv3+',
       scripts=[],
       keywords='',
