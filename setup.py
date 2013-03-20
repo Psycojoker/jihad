@@ -23,7 +23,7 @@
 from setuptools import setup
 
 setup(name='jihad',
-      version='0.1.1',
+      version='0.1.2',
       description='Use haml and jinja2 in OpenERP views',
       author='Laurent Peuch',
       #long_description='',
