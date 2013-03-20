@@ -199,10 +199,12 @@ class FieldsListShortcut(BaseExtension):
         return env.hamlish_from_string(FIELDS_LIST_TEMPLATE).render(fields=args["fields"])
 
 
-env = Environment(extensions=[WithGenericView, FieldShortcut, FieldsListShortcut, HamlishExtension])
+env = None
 
 
 def purify(indent=False):
+    global env
+    env = Environment(extensions=[WithGenericView, FieldShortcut, FieldsListShortcut, HamlishExtension])
     called_from = sys._getframe(1).f_globals["__file__"]
     module_directory = os.path.split(called_from)[0]
 
