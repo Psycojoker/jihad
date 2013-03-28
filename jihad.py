@@ -59,7 +59,7 @@ GENERIC_VIEW_TEMPLATE = """\
               -for key, value in options.items()
                 %field name="{{ key }}" << {{ value }}
               %field name="arch" type="xml"
-                <{{ type }}{% if description %} string="{{ description }}"{% endif %}{% if limit %} limit="{{ limit }}"{{% endif %}}>
+                <{{ type }}{% if description %} string="{{ description }}"{% endif %}{% if limit %} limit="{{ limit }}"{% endif %}>
                   =body
                 </{{ type }}>
 
