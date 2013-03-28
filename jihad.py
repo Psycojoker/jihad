@@ -59,7 +59,7 @@ GENERIC_VIEW_TEMPLATE = """\
               -for key, value in options.items()
                 %field name="{{ key }}" << {{ value }}
               %field name="arch" type="xml"
-                <{{ type }}{% if description %} string="{{ description }}"{% endif %}>
+                <{{ type }}{% if description %} string="{{ description }}"{% endif %}{% if limit %} limit="{{ limit }}"{{% endif %}}>
                   =body
                 </{{ type }}>
 
@@ -98,8 +98,8 @@ class WithGenericView(BaseExtension):
         args["_id"] = self.extract_argument("id", args["options"],
                                             default="view_" + args["model_name"].replace(".", "_") + "_" + args["view_type"])
 
-        args["string"] = self.extract_argument("string",
-                                               args["options"])
+        args["string"] = self.extract_argument("string", args["options"])
+        args["limit"] = self.extract_argument("limit", args["options"])
 
         args["has_menu"] = self.extract_argument("has_menu", args["options"], False) or\
                             len(filter(lambda x: x.startswith("menu_"), args["options"])) > 0
@@ -148,6 +148,7 @@ class WithGenericView(BaseExtension):
                                type=args["view_type"] if args["view_type"] != "list" else "tree",
                                id=args["_id"],
                                description=args["string"],
+                               limit=args["limit"],
                                model_name=args["model_name"],
                                options=args["options"],
                                has_action=args["has_action"],
