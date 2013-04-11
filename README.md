@@ -94,6 +94,13 @@ From source
     cd Jihad
     sudo python setup.py install
 
+Migration
+=========
+
+Jihad provide a migration script call "xml2jihad" that do basic conversions. Usage is:
+
+    xml2jihad <xml_file>
+
 Usage
 =====
 
