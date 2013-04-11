@@ -1,0 +1,109 @@
+#!/usr/bin/env python
+import re
+import sys
+
+from xml.dom import minidom
+from xml.dom import Node
+
+
+def xml_2_haml(inFileName):
+    tree = minidom.parse(inFileName)
+    for node in get_content(tree):
+        handle_node(node)
+
+
+def handle_node(node, indent=0):
+    if node.nodeName == "field":
+        handle_field_node(node, indent)
+    elif node.nodeType == Node.ELEMENT_NODE:
+        handle_element_node(node, indent)
+    elif node.nodeType == Node.COMMENT_NODE:
+        handle_comment_node(node, indent)
+
+
+def get_content(tree):
+    for node in tree.childNodes[0].childNodes:
+        if node.nodeName == "data":
+            return node.childNodes
+
+
+def handle_field_node(node, indent):
+    text = get_node_text(node)
+    if node.childNodes and text:
+        sys.stdout.write("  " * indent + "%field")
+        write_attributes(node)
+        sys.stdout.write(" << ")
+        sys.stdout.write(get_node_text(node) + "\n")
+
+        for child in node.childNodes:
+            handle_node(child, indent + 1)
+
+    elif not node.childNodes and node.attributes:
+        handle_single_field(node, indent)
+
+    else:
+        handle_element_node(node, indent)
+
+
+def handle_single_field(node, indent):
+    for index in range(node.attributes.length):
+        attr = node.attributes.item(index)
+        if attr.name == "name":
+            node_name = attr.value
+            break
+    else:
+        raise
+
+    sys.stdout.write("  " * indent + '-f "%s"' % node_name)
+
+    for idx in range(node.attributes.length):
+        attr = node.attributes.item(idx)
+        if attr.name != "name":
+            sys.stdout.write(' %s="%s"' % (attr.name, attr.value))
+
+    sys.stdout.write("\n")
+
+
+def write_attributes(node):
+    if node.attributes:
+        for idx in range(node.attributes.length):
+            attr = node.attributes.item(idx)
+            sys.stdout.write(' %s="%s"' % (attr.name, attr.value))
+
+
+def handle_element_node(node, indent=0):
+    if node.nodeName in ("record", "menuitem"):
+        sys.stdout.write("\n")
+    sys.stdout.write("  " * indent + "%" + node.nodeName)
+
+    write_attributes(node)
+    if node.childNodes or node.nodeName == "newline":
+        sys.stdout.write("\n")
+    else:
+        sys.stdout.write(".\n")
+
+    text = get_node_text(node)
+    if text:
+        sys.stdout.write("  " * indent + "  " + "".join(text) + "\n")
+
+    for child in node.childNodes:
+        handle_node(child, indent + 1)
+
+
+def get_node_text(node):
+    text = []
+    for child in node.childNodes:
+        if child.nodeType == Node.TEXT_NODE and re.search('\S', child.nodeValue):
+            text.append(child.nodeValue)
+    return "".join(text)
+
+
+def handle_comment_node(node, indent=0):
+    for line in node.nodeValue.split("\n"):
+        sys.stdout.write(" " * indent + ";" + line + "\n")
+
+if __name__ == '__main__':
+    if not sys.argv[1:]:
+        print "Usage: xml2jihad <file>"
+        sys.exit(0)
+    xml_2_haml(sys.argv[1])

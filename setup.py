@@ -33,6 +33,6 @@ setup(name='jihad',
       packages=[],
       py_modules=['jihad'],
       license= 'GPLv3+',
-      scripts=[],
+      scripts=['xml2jihad'],
       keywords='',
      )
