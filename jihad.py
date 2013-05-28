@@ -117,11 +117,18 @@ class WithGenericView(BaseExtension):
             "name": " ".join(args["model_name"].split(".")[1:]).title(),
         }
 
+        to_remove = []
+
         for key in args["options"]:
             if key.startswith("action_"):
                 args["action_options"][key.replace("action_", "", 1)] = args["options"][key]
+                to_remove.append(key)
             elif key.startswith("menu_"):
                 args["menu_options"][key.replace("menu_", "", 1)] = args["options"][key]
+                to_remove.append(key)
+
+        for key in to_remove:
+            del args["options"][key]
 
         args["options"] = dict(filter(lambda x: not x[0].startswith("action_") and x[0].startswith("menu_"), args["options"].items()))
 
