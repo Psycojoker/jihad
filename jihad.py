@@ -230,7 +230,7 @@ def purify(indent=False):
         if not os.path.exists(haml_file_path):
             continue
         to_write = env.get_template(haml_file).render()
-        if not re.match("^\s*<\s*openerp\s*>\s*<\s*data\s*>", to_write):
+        if not re.match("^\s*<\s*openerp\s*>\s*<\s*data ", to_write):
             to_write = env.hamlish_from_string("%openerp\n  %data\n    =body").render(body=to_write)
         to_write = format_xml(xml_file, to_write)
         open(os.path.join(module_directory, xml_file), "w").write(to_write)
