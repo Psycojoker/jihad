@@ -59,7 +59,7 @@ GENERIC_VIEW_TEMPLATE = """\
               -for key, value in options.items()
                 %field name="{{ key }}" << {{ value }}
               %field name="arch" type="xml"
-                <{{ type }}{% if description %} string="{{ description }}"{% endif %}{% if limit %} limit="{{ limit }}"{% endif %}>
+                <{{ type }}{% if description %} string="{{ description }}"{% endif %}{% if limit %} limit="{{ limit }}"{% endif %}{% if editable %} editable="{{ editable }}"{% endif %}>
                   =body
                 </{{ type }}>
 
@@ -100,6 +100,7 @@ class WithGenericView(BaseExtension):
 
         args["string"] = self.extract_argument("string", args["options"])
         args["limit"] = self.extract_argument("limit", args["options"])
+        args["editable"] = self.extract_argument("editable", args["options"])
 
         args["has_menu"] = self.extract_argument("has_menu", args["options"], False) or\
                             len(filter(lambda x: x.startswith("menu_"), args["options"])) > 0
@@ -156,6 +157,7 @@ class WithGenericView(BaseExtension):
                                id=args["_id"],
                                description=args["string"],
                                limit=args["limit"],
+                               editable=args["editable"],
                                model_name=args["model_name"],
                                options=args["options"],
                                has_action=args["has_action"],
